@@ -1,59 +1,282 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Authentication & Account Management API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A secure REST API built with Laravel for user authentication and profile management, fully documented with Swagger/OpenAPI.
 
-## About Laravel
+### Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **User Authentication**: Registration, login, and logout with token-based authentication
+- **Profile Management**: Retrieve, update, and delete user profiles
+- **Password Management**: Secure password change with validation
+- **Protected Routes**: All profile endpoints require valid authentication token
+- **API Documentation**: Interactive Swagger/OpenAPI documentation
+- **Security**: Input validation, password hashing, and token-based authorization
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Prerequisites
 
-## Learning Laravel
+- PHP 8.1 or higher
+- Composer
+- Laravel 10.x
+- MySQL or SQLite
+- Postman (for API testing)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install dependencies**
 
-### Premium Partners
+```bash
+composer install
+Create environment file
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+cp .env.example .env
+Generate application key
+```
 
-## Contributing
+```bash
+php artisan key:generate
+Configure database (in .env)
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_auth_api
+DB_USERNAME=root
+DB_PASSWORD=
+Run migrations
 
-## Code of Conduct
+```bash
+php artisan migrate
+Install Swagger documentation
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer require darkaonline/l5-swagger
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+php artisan l5-swagger:generate
+Start the development server
+```
 
-## Security Vulnerabilities
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+```markdown
+# API Documentation
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Overview
+
+This document provides comprehensive documentation for the Laravel Authentication & Account Management API. All endpoints are fully testable via Postman or the interactive Swagger UI.
+
+---
+
+## Base URL
+
+```
+http://localhost:8000/api
+```
+
+---
+
+## Authentication
+
+The API uses **token-based authentication** (Laravel Sanctum). Protected routes require an `Authorization` header with a valid token:
+
+```
+Authorization: Bearer {token}
+```
+
+---
+
+## Response Format
+
+All responses follow a consistent JSON format:
+
+```json
+{
+  "message": "Operation description",
+  "data": {},
+  "token": "optional_token_for_auth_routes"
+}
+```
+
+---
+
+## Endpoints
+
+### 1. Authentication Endpoints
+
+#### 1.1 Register User
+
+**Endpoint**: `POST /register`
+
+**Description**: Create a new user account
+
+**Request Headers**:
+```
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "name": "string (required)",
+  "email": "string (required, valid email format)",
+  "password": "string (required, min 8 characters)",
+  "password_confirmation": "string (required, must match password)"
+}
+```
+
+**Success Response (201)**:
+```json
+{
+  "message": "Account created successfully",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "created_at": "2026-03-11T10:30:00Z"
+  }
+}
+```
+
+**Error Responses**:
+
+| Scenario | Status | Response |
+|---|---|---|
+| Email already exists | 422 | `{"message": "The email has already been taken"}` |
+| Validation error | 422 | `{"message": "Validation failed", "errors": {...}}` |
+| Password too short | 422 | `{"message": "The password must be at least 8 characters"}` |
+
+**Example cURL**:
+```bash
+curl -X POST http://localhost:8000/api/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "SecurePass123",
+    "password_confirmation": "SecurePass123"
+  }'
+```
+
+---
+
+#### 1.2 Login User
+
+**Endpoint**: `POST /login`
+
+**Description**: Authenticate user and receive authentication token
+
+**Request Headers**:
+```
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "email": "string (required, valid email)",
+  "password": "string (required)"
+}
+```
+
+**Success Response (200)**:
+```json
+{
+  "message": "Login successful",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}
+```
+
+**Error Responses**:
+
+| Scenario | Status | Response |
+|---|---|---|
+| Invalid credentials | 401 | `{"message": "Invalid credentials"}` |
+| Email not found | 401 | `{"message": "Invalid credentials"}` |
+
+**Example cURL**:
+```bash
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "SecurePass123"
+  }'
+```
+
+---
+
+#### 1.3 Logout User
+
+**Endpoint**: `POST /logout`
+
+**Description**: Invalidate the current authentication token
+
+**Request Headers**:
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Success Response (200)**:
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+**Error Responses**:
+
+| Scenario | Status | Response |
+|---|---|---|
+| Missing token | 401 | `{"message": "Unauthorized"}` |
+| Invalid token | 401 | `{"message": "Unauthorized"}` |
+
+**Example cURL**:
+```bash
+curl -X POST http://localhost:8000/api/logout \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json"
+```
+
+---
+
+### 2. Profile Management Endpoints (Protected)
+
+> ️ **All endpoints in this section require valid authentication token**
+
+#### 2.1 Get User Profile
+
+**Endpoint**: `GET /me`
+
+**Description**: Retrieve the authenticated user's profile information
+
+**Request Headers**:
+```
+Authorization: Bearer {token}
+```
+
+**Success Response (200)**:
+```json
+{
+  "message": "Profile fetched successfully",
+  "data": {}
+}
